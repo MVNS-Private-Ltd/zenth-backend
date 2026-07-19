@@ -69,4 +69,22 @@ router.post(
   }
 );
 
+/**
+ * GET /api/member/inquiries
+ * Get all global inquiries.
+ */
+router.get('/inquiries', requireMemberAuth, async (req, res) => {
+  const { data, error } = await supabase
+    .from('leads')
+    .select('*')
+    .order('created_at', { ascending: false });
+
+  if (error) {
+    console.error('[member/inquiries] Supabase select error:', error.message);
+    return res.status(500).json({ error: 'Failed to fetch inquiries.' });
+  }
+
+  return res.json({ inquiries: data });
+});
+
 module.exports = router;
