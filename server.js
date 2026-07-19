@@ -10,9 +10,24 @@ const chatRouter = require('./routes/chat');
 const app = express();
 
 // Middleware
+const allowedOrigins = [
+  process.env.CLIENT_ORIGIN,
+  'https://zenthweb.dev',
+  'https://www.zenthweb.dev',
+  'http://localhost:5173',
+  'http://localhost:3000',
+].filter(Boolean);
+
 app.use(
   cors({
-    origin: process.env.CLIENT_ORIGIN || 'http://localhost:5173',
+    origin: function (origin, callback) {
+      // Allow requests with no origin (mobile apps, curl, Postman)
+      if (!origin) return callback(null, true);
+      // Allow any Vercel preview URL for this project
+      if (origin.match(/https:\/\/zenth.*\.vercel\.app/)) return callback(null, true);
+      if (allowedOrigins.includes(origin)) return callback(null, true);
+      callback(new Error(`CORS: origin ${origin} not allowed`));
+    },
     credentials: true,
   })
 );
