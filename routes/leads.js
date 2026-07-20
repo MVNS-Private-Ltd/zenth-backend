@@ -92,7 +92,7 @@ Plan Interest: ${plan || 'N/A'}
 Requirements:
 ${requirements || 'N/A'}
 
-Manage this lead in your dashboard: http://localhost:5173/admin/login
+Manage this lead in your dashboard: ${process.env.CLIENT_ORIGIN || 'https://zenthweb.dev'}/admin/login
           `,
         });
         console.log(`[leads] Email notification sent to contact@zenthweb.dev for lead ${data.id}`);
