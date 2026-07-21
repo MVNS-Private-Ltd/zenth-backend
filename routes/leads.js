@@ -37,7 +37,7 @@ router.post(
 
     body('plan')
       .optional({ checkFalsy: true })
-      .isIn(['starter', 'premium']).withMessage('Plan must be "starter" or "premium".'),
+      .isIn(['starter', 'growth', 'custom']).withMessage('Plan must be "starter", "growth", or "custom".'),
 
     handleValidationErrors,
   ],
