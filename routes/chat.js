@@ -100,7 +100,7 @@ router.post('/message', async (req, res) => {
       content: userMessage
     });
 
-    const data = await callGroq(messages, 150, 0.7);
+    const data = await callGroq(messages, 1024, 0.7);
     if (data.choices && data.choices[0]) {
       res.json({ reply: data.choices[0].message.content.trim() });
     } else {
