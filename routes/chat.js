@@ -19,7 +19,7 @@ async function callGroq(messages, max_tokens = 100, temperature = 0.7) {
       "Authorization": `Bearer ${apiKey}`
     },
     body: JSON.stringify({
-      model: "llama3-8b-8192",
+      model: "openai/gpt-oss-20b",
       messages,
       temperature,
       max_tokens
@@ -53,7 +53,7 @@ router.post('/compliment', async (req, res) => {
       }
     ];
 
-    const data = await callGroq(messages, 15, 0.8);
+    const data = await callGroq(messages, 250, 0.8);
     let compliment = "NICE ONE!";
     if (data.choices && data.choices[0]) {
       compliment = data.choices[0].message.content.trim().replace(/["']/g, "");
