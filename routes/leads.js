@@ -79,7 +79,7 @@ router.post(
 
         await transporter.sendMail({
           from: `"Zenth Website" <${process.env.SMTP_USER}>`,
-          to: 'contact@zenthweb.dev',
+          to: process.env.ADMIN_EMAIL || process.env.SMTP_USER,
           subject: `New Lead: ${name} (${plan ? plan + ' plan' : 'General Inquiry'})`,
           text: `
 You have received a new lead from the Zenth website!
