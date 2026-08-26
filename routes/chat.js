@@ -19,7 +19,7 @@ async function callGroq(messages, max_tokens = 100, temperature = 0.7) {
       "Authorization": `Bearer ${apiKey}`
     },
     body: JSON.stringify({
-      model: "openai/gpt-oss-20b",
+      model: "groq/compound-mini",
       messages,
       temperature,
       max_tokens
