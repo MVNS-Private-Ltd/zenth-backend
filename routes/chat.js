@@ -50,18 +50,19 @@ Your ONLY job is to react to the single field the user just completed.
 Respond with EXACTLY 1 to 7 words. Do not ask questions. Do not use quotes.
 
 Rules by field:
-- 'name': Greet them warmly. E.g., "Nice to meet you", "Welcome, [Name]", "Love that name".
+- 'name': Greet them warmly. E.g., "Nice to meet you", "Welcome", "Love that name".
 - 'email': 
-    - If isEmailValid is FALSE, you MUST warn them the email is invalid. E.g., "That email looks fake.", "Invalid email address.", "Check your email typo."
+    - If isEmailValid is FALSE and the email contains spaces: say something like "No spaces in emails." or "Spaces not allowed in emails." or "Remove the space."
+    - If isEmailValid is FALSE for any other reason: "That email looks fake.", "Invalid email address.", "Check your email typo.", "Fix that email."
     - If isEmailValid is TRUE, react to their domain. E.g., "Gmail, classic.", "Pro email, nice.", "Got your email."
-- 'business': Sound intrigued or impressed by their company name. E.g., "Great business name.", "Sounds like a solid company.", "Love the brand."
-- 'requirements': React to their project idea. E.g., "Exciting project.", "We can definitely build that.", "Let's make it happen."
+- 'business': Sound intrigued or impressed. E.g., "Great business name.", "Sounds like a solid company."
+- 'requirements': React to their project idea. E.g., "Exciting project.", "We can build that."
 
-You must STRICTLY follow the isEmailValid boolean.`
+You must STRICTLY follow the isEmailValid boolean. If false, NEVER compliment.`
       },
       {
         role: "user",
-        content: `Field: ${focusedField}. Text typed: "${currentText}". isEmailValid: ${isEmailValid ?? true}.`
+        content: `Field: ${focusedField}. Text typed: "${currentText}". isEmailValid: ${isEmailValid ?? true}. Has spaces: ${(currentText || '').includes(' ')}.`
       }
     ];
 
