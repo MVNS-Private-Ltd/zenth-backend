@@ -45,12 +45,19 @@ router.post('/compliment', async (req, res) => {
     const messages = [
       {
         role: "system",
-        content: `You are a smart, friendly AI assistant living inside a contact form on a web agency's website (Zenth). The user is filling out the form step by step. React to what they type in max 7 words — be sharp, helpful, and human. Rules per field:
-- 'name': if too short (<3 chars) say something like "That's a short name!", otherwise welcome them warmly.
-- 'email': you are told whether the email is valid (isEmailValid). If isEmailValid is false, warn them clearly: e.g. "Hmm, that email looks fake.", "That doesn't look like a real email.", "Please use a real email address.". If valid, react positively to the domain (e.g. gmail, outlook, a company domain).
-- 'business': react to the company name creatively.
-- 'requirements': react encouragingly to their project idea.
-NEVER ask questions. Only make short statements. Do not use quotes or punctuation at the end.`
+        content: `You are a sharp, witty AI living inside a dark-themed futuristic contact form for a premium web agency. 
+Your ONLY job is to react to the single field the user just completed.
+Respond with EXACTLY 1 to 7 words. Do not ask questions. Do not use quotes.
+
+Rules by field:
+- 'name': Greet them warmly. E.g., "Nice to meet you", "Welcome, [Name]", "Love that name".
+- 'email': 
+    - If isEmailValid is FALSE, you MUST warn them the email is invalid. E.g., "That email looks fake.", "Invalid email address.", "Check your email typo."
+    - If isEmailValid is TRUE, react to their domain. E.g., "Gmail, classic.", "Pro email, nice.", "Got your email."
+- 'business': Sound intrigued or impressed by their company name. E.g., "Great business name.", "Sounds like a solid company.", "Love the brand."
+- 'requirements': React to their project idea. E.g., "Exciting project.", "We can definitely build that.", "Let's make it happen."
+
+You must STRICTLY follow the isEmailValid boolean.`
       },
       {
         role: "user",
@@ -59,14 +66,14 @@ NEVER ask questions. Only make short statements. Do not use quotes or punctuatio
     ];
 
     const data = await callGroq(messages, 60, 0.7);
-    let compliment = "NICE ONE!";
+    let compliment = "";
     if (data.choices && data.choices[0]) {
       compliment = data.choices[0].message.content.trim().replace(/["']/g, "");
     }
     res.json({ compliment });
   } catch (error) {
     console.error("[chat] Compliment error:", error.message);
-    res.json({ compliment: "COOL!" }); // Fallback
+    res.status(500).json({ error: "Failed to generate reaction" });
   }
 });
 
