@@ -96,45 +96,20 @@ router.post(
       return res.status(500).json({ error: 'Failed to save your inquiry. Please try again.' });
     }
 
-    // Try sending email (fire and forget, don't fail the request if email fails)
-    try {
-      if (process.env.SMTP_HOST && process.env.SMTP_USER) {
-        const transporter = nodemailer.createTransport({
-          host: process.env.SMTP_HOST,
-          port: process.env.SMTP_PORT || 465,
-          secure: process.env.SMTP_PORT == 465, // true for 465, false for other ports
-          auth: {
-            user: process.env.SMTP_USER,
-            pass: (process.env.SMTP_PASS || '').replace(/\s+/g, ''),
-          },
-        });
-        // Fire and forget so we don't block the request if SMTP hangs
-        transporter.sendMail({
-          from: `"Zenth Website" <${process.env.SMTP_USER}>`,
-          to: process.env.ADMIN_EMAIL || process.env.SMTP_USER,
-          subject: `New Lead: ${name} (${plan ? plan + ' plan' : 'General Inquiry'})`,
-          text: `
-You have received a new lead from the Zenth website!
-
-Name: ${name}
-Email: ${email}
-Business: ${business || 'N/A'}
-Plan Interest: ${plan || 'N/A'}
-
-Requirements:
-${requirements || 'N/A'}
-
-Manage this lead in your dashboard: ${process.env.CLIENT_ORIGIN || 'https://zenthweb.dev'}/admin/login
-          `,
-        })
-        .then(() => console.log(`[leads] Email notification sent for lead ${data.id}`))
-        .catch(emailErr => console.error(`[leads] Failed to send email (SMTP error):`, emailErr));
-        
-      } else {
-        console.log('[leads] Email not sent: SMTP credentials missing in .env');
-      }
-    } catch (err) {
-      console.error('[leads] Unexpected error in email block:', err);
+    // Try sending email via Resend (HTTP API — works on Render free tier)
+    if (process.env.RESEND_API_KEY) {
+      const { Resend } = require('resend');
+      const resend = new Resend(process.env.RESEND_API_KEY);
+      resend.emails.send({
+        from: 'Zenth Website <onboarding@resend.dev>',
+        to: process.env.ADMIN_EMAIL || 'mayank557sharma@gmail.com',
+        subject: `New Lead: ${name} (${plan ? plan + ' plan' : 'General Inquiry'})`,
+        text: `You have received a new lead from the Zenth website!\n\nName: ${name}\nEmail: ${email}\nBusiness: ${business || 'N/A'}\nPlan Interest: ${plan || 'N/A'}\n\nRequirements:\n${requirements || 'N/A'}\n\nManage leads: ${process.env.CLIENT_ORIGIN || 'https://zenthweb.dev'}/admin/login`,
+      })
+      .then(() => console.log(`[leads] Email sent via Resend for lead ${data.id}`))
+      .catch(err => console.error(`[leads] Resend failed:`, err));
+    } else {
+      console.log('[leads] Email skipped: RESEND_API_KEY not set');
     }
 
     return res.status(201).json({
