@@ -64,6 +64,18 @@ router.post(
       return res.status(422).json({ error: 'Please enter a real email address. We could not verify this domain.' });
     }
 
+    // Duplicate check: one submission per email address
+    const { data: existing } = await supabase
+      .from('leads')
+      .select('id')
+      .eq('email', email)
+      .limit(1)
+      .single();
+
+    if (existing) {
+      return res.status(409).json({ error: 'We already received an inquiry from this email. We will get back to you soon!' });
+    }
+
     const { data, error } = await supabase
       .from('leads')
       .insert([
