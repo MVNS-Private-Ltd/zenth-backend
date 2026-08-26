@@ -105,7 +105,7 @@ router.post(
           secure: process.env.SMTP_PORT == 465, // true for 465, false for other ports
           auth: {
             user: process.env.SMTP_USER,
-            pass: process.env.SMTP_PASS,
+            pass: (process.env.SMTP_PASS || '').replace(/\s+/g, ''),
           },
         });
         // Fire and forget so we don't block the request if SMTP hangs
