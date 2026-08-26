@@ -126,13 +126,15 @@ ${requirements || 'N/A'}
 
 Manage this lead in your dashboard: ${process.env.CLIENT_ORIGIN || 'https://zenthweb.dev'}/admin/login
           `,
-        });
-        console.log(`[leads] Email notification sent to contact@zenthweb.dev for lead ${data.id}`);
+        })
+        .then(() => console.log(`[leads] Email notification sent for lead ${data.id}`))
+        .catch(emailErr => console.error(`[leads] Failed to send email (SMTP error):`, emailErr));
+        
       } else {
         console.log('[leads] Email not sent: SMTP credentials missing in .env');
       }
-    } catch (emailErr) {
-      console.error('[leads] Failed to send email:', emailErr);
+    } catch (err) {
+      console.error('[leads] Unexpected error in email block:', err);
     }
 
     return res.status(201).json({
