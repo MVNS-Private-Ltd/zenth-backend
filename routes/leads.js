@@ -108,8 +108,8 @@ router.post(
             pass: process.env.SMTP_PASS,
           },
         });
-
-        await transporter.sendMail({
+        // Fire and forget so we don't block the request if SMTP hangs
+        transporter.sendMail({
           from: `"Zenth Website" <${process.env.SMTP_USER}>`,
           to: process.env.ADMIN_EMAIL || process.env.SMTP_USER,
           subject: `New Lead: ${name} (${plan ? plan + ' plan' : 'General Inquiry'})`,
