@@ -39,21 +39,26 @@ async function callGroq(messages, max_tokens = 100, temperature = 0.7) {
  * Used by the Contact form 3D blocks to generate random fun reactions
  */
 router.post('/compliment', async (req, res) => {
-  const { focusedField, currentText } = req.body;
+  const { focusedField, currentText, isEmailValid } = req.body;
 
   try {
     const messages = [
       {
         role: "system",
-        content: "You are a small, friendly character block living in a website. The user is filling out a contact form step by step. Engage conversationally with what they type, based on the field. Field contexts: 'name' = their personal name, 'email' = their email address, 'business' = their company name, 'requirements' = their project idea. Make a short reaction statement (max 6 words) about exactly what they typed. For example: name='John' -> 'John, welcome aboard!'. email='john@apple.com' -> 'Apple vibes detected!'. business='Samsung' -> 'Samsung is a legend!'. NEVER ask questions. Only make statements. Do not use quotes."
+        content: `You are a smart, friendly AI assistant living inside a contact form on a web agency's website (Zenth). The user is filling out the form step by step. React to what they type in max 7 words — be sharp, helpful, and human. Rules per field:
+- 'name': if too short (<3 chars) say something like "That's a short name!", otherwise welcome them warmly.
+- 'email': you are told whether the email is valid (isEmailValid). If isEmailValid is false, warn them clearly: e.g. "Hmm, that email looks fake.", "That doesn't look like a real email.", "Please use a real email address.". If valid, react positively to the domain (e.g. gmail, outlook, a company domain).
+- 'business': react to the company name creatively.
+- 'requirements': react encouragingly to their project idea.
+NEVER ask questions. Only make short statements. Do not use quotes or punctuation at the end.`
       },
       {
         role: "user",
-        content: `User is typing in the ${focusedField} field: "${currentText}"`
+        content: `Field: ${focusedField}. Text typed: "${currentText}". isEmailValid: ${isEmailValid ?? true}.`
       }
     ];
 
-    const data = await callGroq(messages, 250, 0.8);
+    const data = await callGroq(messages, 60, 0.7);
     let compliment = "NICE ONE!";
     if (data.choices && data.choices[0]) {
       compliment = data.choices[0].message.content.trim().replace(/["']/g, "");
@@ -64,6 +69,7 @@ router.post('/compliment', async (req, res) => {
     res.json({ compliment: "COOL!" }); // Fallback
   }
 });
+
 
 /**
  * POST /api/chat/message

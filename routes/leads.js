@@ -1,10 +1,24 @@
 const express = require('express');
 const { body } = require('express-validator');
 const nodemailer = require('nodemailer');
+const dns = require('dns').promises;
 const supabase = require('../lib/supabase');
 const { handleValidationErrors } = require('../middleware/validate');
 
 const router = express.Router();
+
+/**
+ * Checks if the email's domain has valid MX records (can actually receive mail).
+ */
+async function isEmailDomainValid(email) {
+  try {
+    const domain = email.split('@')[1];
+    const records = await dns.resolveMx(domain);
+    return records && records.length > 0;
+  } catch {
+    return false; // domain doesn't exist or has no mail servers
+  }
+}
 
 /**
  * POST /api/leads
@@ -43,6 +57,12 @@ router.post(
   ],
   async (req, res) => {
     const { name, email, business, requirements, plan } = req.body;
+
+    // DNS check: verify the email domain actually has mail servers
+    const domainValid = await isEmailDomainValid(email);
+    if (!domainValid) {
+      return res.status(422).json({ error: 'Please enter a real email address. We could not verify this domain.' });
+    }
 
     const { data, error } = await supabase
       .from('leads')

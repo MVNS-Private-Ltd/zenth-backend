@@ -102,4 +102,16 @@ app.use((err, req, res, next) => {
 const PORT = process.env.PORT || 4000;
 app.listen(PORT, () => {
   console.log(`🚀 Server running on port ${PORT}`);
+
+  // ─── Keep-alive ping (Render free tier shuts down after 15min of inactivity) ───
+  // Pings our own /health endpoint every 14 minutes to prevent cold starts.
+  const SELF_URL = process.env.RENDER_EXTERNAL_URL || `http://localhost:${PORT}`;
+  setInterval(async () => {
+    try {
+      const res = await fetch(`${SELF_URL}/health`);
+      console.log(`[keep-alive] Pinged /health → ${res.status}`);
+    } catch (err) {
+      console.warn('[keep-alive] Ping failed:', err.message);
+    }
+  }, 14 * 60 * 1000); // every 14 minutes
 });
