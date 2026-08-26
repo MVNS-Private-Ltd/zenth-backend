@@ -70,7 +70,7 @@ router.post(
       .select('id')
       .eq('email', email)
       .limit(1)
-      .single();
+      .maybeSingle();
 
     if (existing) {
       return res.status(409).json({ error: 'We already received an inquiry from this email. We will get back to you soon!' });
