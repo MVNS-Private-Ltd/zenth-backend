@@ -19,7 +19,7 @@ async function callGroq(messages, max_tokens = 100, temperature = 0.7) {
       "Authorization": `Bearer ${apiKey}`
     },
     body: JSON.stringify({
-      model: "groq/compound-mini",
+      model: "llama-3.1-8b-instant",
       messages,
       temperature,
       max_tokens
@@ -66,7 +66,7 @@ You must STRICTLY follow the isEmailValid boolean. If false, NEVER compliment.`
       }
     ];
 
-    const data = await callGroq(messages, 60, 0.7);
+    const data = await callGroq(messages, 20, 0.5);
     let compliment = "";
     if (data.choices && data.choices[0]) {
       compliment = data.choices[0].message.content.trim().replace(/["']/g, "");
